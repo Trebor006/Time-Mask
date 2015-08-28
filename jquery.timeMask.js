@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Time Mask Plugin
  * 
  * @version 1.1
@@ -10,30 +10,43 @@
  * 
  * @author Stéfano Stypulkowski <http://szanata.com>
  */
-(function ($){
-  
-  $.fn.timeMask = function (){
+(function ($) {
 
-    var
-      tester = new RegExp('^([0-1][0-9]|2[0-3]):[0-5][0-9]$|^([0-1][0-9]|2[0-3]):[0-5]$|^([0-1][0-9]|2[0-3]):$|^([0-1][0-9]|2[0-3])$|^([0-1]|2)$'),
-      matcher = new RegExp('([0-1][0-9]|2[0-3]):[0-5][0-9]|([0-1][0-9]|2[0-3]):[0-5]|([0-1][0-9]|2[0-3]):|([0-1][0-9]|2[0-3])|([0-1]|2)','g'),
-      events = /.*MSIE 8.*|.*MSIE 7.*|.*MSIE 6.*|.*MSIE 5.*/.test(navigator.userAgent) ? 'keyup propertychange paste' : 'input paste';
-            
-    function handler(e){
-      var self = $(e.currentTarget);
-      if (self.val() !== e.data.ov){
-        if (!tester.test(self.val())){
-          var r = self.val().match(matcher);
-          self.val(r === null ? '' : r[0]);
+    $.fn.timeMask = function () {
+
+        var
+          tester = new RegExp('^([0-1][0-9]|2[0-3]):[0-5][0-9]$|^([0-1][0-9]|2[0-3]):[0-5]$|^([0-1][0-9]|2[0-3]):$|^([0-1][0-9]|2[0-3])$|^([0-1]|2)$'),
+          matcher = new RegExp('([0-1][0-9]|2[0-3]):[0-5][0-9]|([0-1][0-9]|2[0-3]):[0-5]|([0-1][0-9]|2[0-3]):|([0-1][0-9]|2[0-3])|([0-1]|2)', 'g'),
+          events = /.*MSIE 8.*|.*MSIE 7.*|.*MSIE 6.*|.*MSIE 5.*/.test(navigator.userAgent) ? 'keyup propertychange paste' : 'input paste';
+
+        function handler(e) {
+            var self = $(e.currentTarget);
+            if (self.val().length == 3) {
+                if (self.val().substring(2, 3) == ":") {                    
+                    if (!tester.test(self.val())) {
+                        var r = self.val().match(matcher);
+                        self.val(r === null ? '' : r[0]);
+                    }
+                } else {
+                    var dato = self.val().substring(2, 3);
+                    self.val(self.val().substring(0, 2));
+                    self.val(self.val() + ":" + dato);
+                }
+            } else if (self.val().length == 2) {
+                self.val(self.val() + ":");
+            }
+            if (self.val() !== e.data.ov) {
+                if (!tester.test(self.val())) {
+                    var r = self.val().match(matcher);
+                    self.val(r === null ? '' : r[0]);
+                }
+                ov = e.data.ov = self.val();
+            }
         }
-        ov = e.data.ov = self.val();
-      }
+        this.each(function () {
+            $(this)
+              .attr('maxlength', 5)
+              .bind(events, { ov: $(this).val() }, handler)
+        });
     }
-
-    this.each(function (){
-      $(this)
-        .attr('maxlength', 5)
-        .bind(events,{ov:$(this).val()},handler)
-    });
-  }
 })(jQuery);
